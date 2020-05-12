@@ -1,0 +1,44 @@
+package main
+
+import "testing"
+
+// ---- in main code file:
+
+type WeatherSource interface {
+	CurrentTemperature() (int, error)
+}
+
+func IsForShorts(source WeatherSource) (bool, error) {
+	temperature, err := source.CurrentTemperature()
+	if err != nil {
+		return false, err
+	}
+
+	forShorts := temperature > 20
+
+	return forShorts, nil
+}
+
+// ---- in test file:
+
+func TestIsForShorts(t *testing.T) {
+	notForShortsData := mockWeatherSource{temperature: 10}
+
+	isForShorts, err := IsForShorts(notForShortsData)
+	if err != nil {
+		t.Errorf("unexpected error %q", err)
+	}
+
+	if isForShorts != false {
+		t.Errorf("expected %v got %v", false, isForShorts)
+	}
+}
+
+type mockWeatherSource struct {
+	temperature int
+	err         error
+}
+
+func (m mockWeatherSource) CurrentTemperature() (int, error) {
+	return m.temperature, m.err
+}
